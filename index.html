@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BrandAI 文案工作台（Notion 風 MVP）</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sbTop">
+        <div class="sbBrand">
+          <div class="sbLogo">B</div>
+          <div class="sbBrandText">
+            <div class="sbTitle">BrandAI</div>
+            <div class="sbSub">文案工作台 · MVP</div>
+          </div>
+        </div>
+
+        <button id="btnNew" class="btn btnPrimary">＋ 新建草稿</button>
+      </div>
+
+      <div class="sbSection">
+        <div class="sbSectionTitle">工作區</div>
+        <div class="sbNav">
+          <button class="sbItem active" data-nav="workspace">📝 工作台</button>
+          <button class="sbItem" data-nav="templates">🧩 模板庫（Demo）</button>
+          <button class="sbItem" data-nav="settings">⚙️ 設定</button>
+        </div>
+      </div>
+
+      <div class="sbSection">
+        <div class="sbSectionTitle">最近生成</div>
+        <div id="historyList" class="historyList"></div>
+      </div>
+
+      <div class="sbFooter">
+        <div class="miniHint">提示：所有內容會自動儲存到本機（localStorage）</div>
+        <div class="sbFooterBtns">
+          <button id="btnExport" class="btn">匯出 JSON</button>
+          <button id="btnImport" class="btn">匯入 JSON</button>
+        </div>
+        <input id="importFile" type="file" accept="application/json" style="display:none" />
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <header class="topbar">
+        <div class="pageTitle">
+          <div class="h1">文案工作台</div>
+          <div class="h2">像 Notion 一樣寫：分區塊、可維護、可迭代</div>
+        </div>
+
+        <div class="topActions">
+          <button id="btnTheme" class="btn">切換主題</button>
+          <button id="btnClear" class="btn">清空</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="col left">
+          <div class="block">
+            <div class="blockHead">
+              <div class="blockTitle">Brand（品牌設定）</div>
+              <div class="blockHint">品牌一句話、產品、受眾、語氣</div>
+            </div>
+
+            <label class="field">
+              <div class="label">品牌名稱</div>
+              <input id="brandName" class="input" placeholder="例如：LEADER 鐵人 / Spono / 你的品牌" />
+            </label>
+
+            <label class="field">
+              <div class="label">品牌一句話（定位）</div>
+              <input id="brandOneLiner" class="input" placeholder="例如：讓每個人都能有系統地變強" />
+            </label>
+
+            <label class="field">
+              <div class="label">受眾（TA）</div>
+              <input id="brandAudience" class="input" placeholder="例如：新手泳者 / 家長 / 教練 / 上班族" />
+            </label>
+
+            <label class="field">
+              <div class="label">品牌語氣</div>
+              <div class="chips" id="toneChips"></div>
+            </label>
+          </div>
+
+          <div class="block">
+            <div class="blockHead">
+              <div class="blockTitle">Role（角色設定）</div>
+              <div class="blockHint">像「總編輯 / 資深文案 / 教練」那樣說話</div>
+            </div>
+
+            <label class="field">
+              <div class="label">角色名稱</div>
+              <input id="roleName" class="input" placeholder="例如：品牌總編輯 / 專業教練 / 內容顧問" />
+            </label>
+
+            <label class="field">
+              <div class="label">資歷（seniority）</div>
+              <select id="roleLevel" class="input">
+                <option value="junior">Junior（新手但可靠）</option>
+                <option value="mid">Mid（熟練、務實）</option>
+                <option value="senior" selected>Senior（老練、有判斷）</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <div class="label">個性關鍵字</div>
+              <input id="roleKeywords" class="input" placeholder="例如：溫暖、直接、專業、有梗" />
+            </label>
+          </div>
+
+          <div class="block">
+            <div class="blockHead">
+              <div class="blockTitle">Scene（使用情境）</div>
+              <div class="blockHint">這次要寫什麼、放在哪裡、要達成什麼</div>
+            </div>
+
+            <label class="field">
+              <div class="label">任務類型</div>
+              <select id="sceneType" class="input">
+                <option value="social" selected>社群貼文（IG/FB）</option>
+                <option value="landing">招生頁（報名頁）</option>
+                <option value="seo">網站標題 / SEO</option>
+                <option value="email">Email 宣傳</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <div class="label">目標（CTA）</div>
+              <input id="sceneGoal" class="input" placeholder="例如：引導私訊 / 點連結報名 / 下載懶人包" />
+            </label>
+
+            <label class="field">
+              <div class="label">限制（字數/禁語/重點）</div>
+              <input id="sceneConstraints" class="input" placeholder="例如：200字內、避免太像廣告、要有具體好處" />
+            </label>
+          </div>
+
+          <div class="block">
+            <div class="blockHead">
+              <div class="blockTitle">Knowledge（素材 / 要點）</div>
+              <div class="blockHint">把你「已確認的內容」貼上來（避免腦補）</div>
+            </div>
+
+            <label class="field">
+              <div class="label">重點（Key points）</div>
+              <textarea id="kbPoints" class="textarea" placeholder="一行一點，越具體越好：
+- 課程特色
+- 真實案例
+- 場地/師資
+- 限量/時間
+"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="col right">
+          <div class="block sticky">
+            <div class="blockHead">
+              <div class="blockTitle">Output（生成結果）</div>
+              <div class="blockHint">先用 Demo 生成器；未來可接 /api/generate</div>
+            </div>
+
+            <div class="row">
+              <button id="btnGenerate" class="btn btnPrimary">⚡ 生成 3 種版本</button>
+              <button id="btnCopyAll" class="btn">複製全部</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="outputTabs" id="outputTabs"></div>
+
+            <div id="outputArea" class="outputArea">
+              <div class="emptyState">
+                <div class="emptyTitle">還沒有生成結果</div>
+                <div class="emptySub">填完左邊四塊，按「生成 3 種版本」。</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="miniRow">
+              <span class="miniLabel">狀態</span>
+              <span id="statusText" class="status">已自動保存</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
